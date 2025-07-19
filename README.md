@@ -95,7 +95,13 @@ inputs from the `codegen` program. Commonly used variables are:
 
 ## Running `codegen`
 
-The easiest way to run `codegen` is via `cargo`:
+The easiest way to run `codegen` on a clone of the glam repo is to first initialize the submodule with `git`:
+
+```sh
+git submodule init
+```
+
+Then run it via `cargo`:
 
 ```sh
 cargo run -p codegen
