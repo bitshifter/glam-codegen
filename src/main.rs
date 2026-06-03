@@ -3,12 +3,11 @@ use clap::{arg, command};
 use rustfmt_wrapper::rustfmt;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tera::{from_value, to_value};
 
 // use outputs::build_output_pairs;
 
-const GLAM_ROOT: &str = "..";
 const CONFIG_FILE: &str = "codegen.json";
 
 #[derive(Serialize, Deserialize)]
@@ -150,10 +149,25 @@ fn generate_file(
         .context("tera render error")
 }
 
-fn main() -> anyhow::Result<()> {
-    // Change into `./codegen` dir for convenience to the user
-    std::env::set_current_dir(env!("CARGO_MANIFEST_DIR"))?;
+fn find_config_file() -> anyhow::Result<PathBuf> {
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mut current = manifest_dir.to_path_buf();
 
+    while let Some(parent) = current.parent() {
+        let config_path = parent.join(CONFIG_FILE);
+        if std::path::Path::new(&config_path).exists() {
+            return Ok(config_path);
+        }
+        current = parent.to_path_buf();
+    }
+
+    Err(anyhow::anyhow!(
+            "codegen.json not found. Searched from {} upwards.",
+            manifest_dir.display()
+    ))
+}
+
+fn main() -> anyhow::Result<()> {
     let matches = command!()
         .arg(arg!([GLOB]))
         .arg(arg!(-f - -force))
@@ -185,9 +199,11 @@ fn main() -> anyhow::Result<()> {
         None
     };
 
-    let config = Config::from_file(Path::new(GLAM_ROOT).join(CONFIG_FILE))?;
+    let config_file = find_config_file()?;
+    let config_root = config_file.parent().unwrap_or(Path::new("."));
+    let config = Config::from_file(config_file.as_path())?;
 
-    let template_path = Path::new(GLAM_ROOT)
+    let template_path = Path::new(config_root)
         .join(&config.template_root)
         .join("**/*.rs.tera");
     let mut tera =
@@ -216,7 +232,7 @@ fn main() -> anyhow::Result<()> {
 
     let output_pairs = config.build_output_pairs()?;
 
-    let repo = git2::Repository::open(GLAM_ROOT).context("failed to open git repo")?;
+    let repo = git2::Repository::open(config_root).context("failed to open git repo")?;
     let workdir = repo.workdir().unwrap();
 
     let mut output_paths = vec![];
