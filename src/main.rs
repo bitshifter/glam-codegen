@@ -162,8 +162,8 @@ fn find_config_file() -> anyhow::Result<PathBuf> {
     }
 
     Err(anyhow::anyhow!(
-            "codegen.json not found. Searched from {} upwards.",
-            manifest_dir.display()
+        "codegen.json not found. Searched from {} upwards.",
+        manifest_dir.display()
     ))
 }
 
