@@ -1,5 +1,5 @@
 use anyhow::{bail, Context};
-use clap::{arg, command};
+use argh::FromArgs;
 use rustfmt_wrapper::rustfmt;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -167,31 +167,48 @@ fn find_config_file() -> anyhow::Result<PathBuf> {
     ))
 }
 
+#[derive(FromArgs, PartialEq, Debug)]
+/// Codegen - Generate Rust code from templates
+struct CliArgs {
+    /// output file paths (glob pattern)
+    #[argh(positional, hidden_help)]
+    glob: Option<String>,
+
+    /// force overwrite existing files
+    #[argh(switch, short = 'f')]
+    force: bool,
+
+    /// output to stdout
+    #[argh(switch, short = 's')]
+    stdout: bool,
+
+    /// skip formatting output
+    #[argh(switch, short = 'n')]
+    nofmt: bool,
+
+    /// check mode - compare generated files with existing
+    #[argh(switch)]
+    check: bool,
+
+    /// verbose output
+    #[argh(switch, short = 'v')]
+    verbose: bool,
+}
+
 fn main() -> anyhow::Result<()> {
-    let matches = command!()
-        .arg(arg!([GLOB]))
-        .arg(arg!(-f - -force))
-        .arg(arg!(-s - -stdout))
-        .arg(arg!(-n - -nofmt))
-        .arg(arg!(--check))
-        .arg(arg!(-v - -verbose))
-        .get_matches();
+    let args: CliArgs = argh::from_env();
+    
+    let fmt_output = !args.nofmt;
+    let output_path_glob = args.glob;
 
-    let force = matches.is_present("force");
-    let stdout = matches.is_present("stdout");
-    let fmt_output = !matches.is_present("nofmt");
-    let output_path_glob = matches.value_of("GLOB");
-    let check = matches.is_present("check");
-    let verbose = matches.is_present("verbose");
-
-    if stdout && output_path_glob.is_none() {
+    if args.stdout && output_path_glob.is_none() {
         // TODO: What if the glob matches multiple files?
         bail!("specify a single file to output to stdout.");
     }
 
-    let glob = if let Some(output_path_glob) = output_path_glob {
+    let glob = if let Some(ref output_path_glob) = output_path_glob {
         Some(
-            globset::Glob::new(output_path_glob)
+            globset::Glob::new(output_path_glob.as_str())
                 .context("failed to compile glob")?
                 .compile_matcher(),
         )
@@ -255,14 +272,14 @@ fn main() -> anyhow::Result<()> {
 
     let mut output_differences = 0;
     for output_path in output_paths {
-        if !check {
+        if !args.check {
             println!("generating {output_path}");
         }
 
         let context = output_pairs.get(output_path).unwrap();
         let template_path = context.get("template_path").unwrap().as_str().unwrap();
 
-        if !(check || force || stdout) && is_modified(&repo, output_path)? {
+        if !(args.check || args.force || args.stdout) && is_modified(&repo, output_path)? {
             bail!(
                 "{} is already modified, use  `-f` to force overwrite or revert local changes.",
                 output_path
@@ -271,7 +288,7 @@ fn main() -> anyhow::Result<()> {
 
         let mut output_str = generate_file(&tera, context, template_path)?;
 
-        if fmt_output || check {
+        if fmt_output || args.check {
             output_str = rustfmt(&output_str).context("rustfmt failed")?;
         }
 
@@ -280,13 +297,13 @@ fn main() -> anyhow::Result<()> {
         let output_dir = full_output_path.parent().unwrap();
         std::fs::create_dir_all(output_dir)?;
 
-        if check {
+        if args.check {
             match std::fs::read_to_string(&full_output_path) {
                 Ok(original_str) => {
                     if output_str != original_str {
                         println!("'{output_path}' is different");
                         output_differences += 1;
-                    } else if verbose {
+                    } else if args.verbose {
                         println!("'{output_path}' is the same");
                     }
                 }
@@ -298,7 +315,7 @@ fn main() -> anyhow::Result<()> {
             continue;
         }
 
-        if stdout {
+        if args.stdout {
             print!("{output_str}");
             continue;
         }
@@ -307,7 +324,7 @@ fn main() -> anyhow::Result<()> {
             .with_context(|| format!("failed to write {}", full_output_path.display()))?;
     }
 
-    if check && output_differences > 0 {
+    if args.check && output_differences > 0 {
         bail!("{output_differences} files were different");
     }
 
