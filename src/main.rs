@@ -197,7 +197,7 @@ struct CliArgs {
 
 fn main() -> anyhow::Result<()> {
     let args: CliArgs = argh::from_env();
-    
+
     let fmt_output = !args.nofmt;
     let output_path_glob = args.glob;
 
