@@ -195,7 +195,7 @@ struct CliArgs {
     verbose: bool,
 
     /// config file path (overrides automatic search)
-    #[argh(option, short = 'c')]
+    #[argh(option)]
     config: Option<PathBuf>,
 }
 

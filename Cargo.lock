@@ -123,11 +123,23 @@ dependencies = [
  "assert_cmd",
  "git2",
  "globset",
+ "insta",
  "rustfmt-wrapper",
  "serde",
  "serde_json",
  "tempfile",
  "tera",
+]
+
+[[package]]
+name = "console"
+version = "0.16.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d64e8af5551369d19cf50138de61f1c42074ab970f74e99be916646777f8fc87"
+dependencies = [
+ "encode_unicode",
+ "libc",
+ "windows-sys",
 ]
 
 [[package]]
@@ -200,6 +212,12 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "encode_unicode"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34aa73646ffb006b8f5147f3dc182bd4bcb190227ce861fc4a4844bf8e3cb2c0"
 
 [[package]]
 name = "equivalent"
@@ -481,6 +499,18 @@ dependencies = [
  "hashbrown 0.17.1",
  "serde",
  "serde_core",
+]
+
+[[package]]
+name = "insta"
+version = "1.47.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b4a6248eb93a4401ed2f37dfe8ea592d3cf05b7cf4f8efa867b6895af7e094e"
+dependencies = [
+ "console",
+ "once_cell",
+ "similar",
+ "tempfile",
 ]
 
 [[package]]
@@ -840,6 +870,12 @@ name = "shlex"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
+
+[[package]]
+name = "similar"
+version = "2.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbbb5d9659141646ae647b42fe094daf6c6192d1620870b449d9557f748b2daa"
 
 [[package]]
 name = "smallvec"
