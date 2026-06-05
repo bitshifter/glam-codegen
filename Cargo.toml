@@ -1,7 +1,6 @@
 [package]
 name = "codegen"
 description = "A tool to generate Rust source code from tera templates"
-authors = ["Cameron Hart <cameron.hart@gmail.com>"]
 version = "0.1.1"
 edition = "2021"
 
