@@ -193,6 +193,10 @@ struct CliArgs {
     /// verbose output
     #[argh(switch, short = 'v')]
     verbose: bool,
+
+    /// config file path (overrides automatic search)
+    #[argh(option)]
+    config: Option<PathBuf>,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -216,7 +220,11 @@ fn main() -> anyhow::Result<()> {
         None
     };
 
-    let config_file = find_config_file()?;
+    let config_file = if let Some(ref config) = args.config {
+        config.clone()
+    } else {
+        find_config_file()?
+    };
     let config_root = config_file.parent().unwrap_or(Path::new("."));
     let config = Config::from_file(config_file.as_path())?;
 

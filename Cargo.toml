@@ -1,5 +1,7 @@
 [package]
 name = "codegen"
+description = "A tool to generate Rust source code from tera templates"
+authors = ["Cameron Hart <cameron.hart@gmail.com>"]
 version = "0.1.1"
 edition = "2021"
 
@@ -15,3 +17,12 @@ rustfmt-wrapper = { version = "0.2" }
 serde = { version = "1.0", default-features = false, features = ["std"] }
 serde_json = { version = "1.0", default-features = false, features = ["std"] }
 tera = { version = "1", default-features = false }
+
+[dev-dependencies]
+insta = "1"
+tempfile = "3"
+assert_cmd = "2"
+
+[profile.dev.package]
+insta.opt-level = 3
+similar.opt-level = 3

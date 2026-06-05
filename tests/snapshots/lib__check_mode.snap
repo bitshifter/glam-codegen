@@ -1,0 +1,5 @@
+---
+source: tests/lib.rs
+expression: stderr
+---
+Error: 1 files were different

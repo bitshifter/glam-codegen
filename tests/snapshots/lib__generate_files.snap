@@ -1,0 +1,19 @@
+---
+source: tests/lib.rs
+expression: content
+---
+// Generated from test.rs.tera template.
+
+pub struct TestStructF32 {
+    pub value: f32,
+}
+
+impl TestStructF32 {
+    pub fn new(v: f32) -> Self {
+        TestStructf32 { value: v }
+    }
+
+    pub fn get_value(&self) -> f32 {
+        self.value
+    }
+}

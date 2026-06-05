@@ -1,0 +1,19 @@
+---
+source: tests/lib.rs
+expression: "std::fs::read_to_string(dir.path().join(\"src/test1_f64.rs\"))?"
+---
+// Generated from test1.rs.tera template.
+
+pub struct TestStructF64 {
+    pub value: f64,
+}
+
+impl TestStructF64 {
+    pub fn new(v: f64) -> Self {
+        TestStructf64 { value: v }
+    }
+
+    pub fn get_value(&self) -> f64 {
+        self.value
+    }
+}
