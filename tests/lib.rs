@@ -30,7 +30,7 @@ fn setup_test_dir() -> Result<TempDir> {
 
     // Initialize git repo (codegen requires a git repository)
     Command::new("git")
-        .args(&["init"])
+        .args(["init"])
         .current_dir(dir.path())
         .assert()
         .success();
@@ -83,7 +83,7 @@ fn test_generate_files() -> Result<()> {
 
     // Run codegen binary directly with --config flag
     let mut cmd = Command::cargo_bin("codegen")?;
-    cmd.args(&["--config", config_path.to_str().unwrap()]);
+    cmd.args(["--config", config_path.to_str().unwrap()]);
 
     cmd.assert().success();
 
@@ -111,12 +111,12 @@ fn test_check_mode() -> Result<()> {
 
     // First generate the file
     let mut cmd = Command::cargo_bin("codegen")?;
-    cmd.args(&["--config", config_path.to_str().unwrap()]);
+    cmd.args(["--config", config_path.to_str().unwrap()]);
     cmd.assert().success();
 
     // Run codegen in check mode with matching files
     let mut cmd = Command::cargo_bin("codegen")?;
-    cmd.args(&["--config", config_path.to_str().unwrap(), "--check"]);
+    cmd.args(["--config", config_path.to_str().unwrap(), "--check"]);
     cmd.assert().success();
 
     // Now modify the generated file to have different content
@@ -125,7 +125,7 @@ fn test_check_mode() -> Result<()> {
 
     // Run codegen in check mode
     let mut cmd = Command::cargo_bin("codegen")?;
-    cmd.args(&["--config", config_path.to_str().unwrap(), "--check"]);
+    cmd.args(["--config", config_path.to_str().unwrap(), "--check"]);
 
     cmd.assert().failure();
 
@@ -171,7 +171,7 @@ fn test_multiple_templates() -> Result<()> {
 
     // Run codegen and check that all files are generated
     let mut cmd = Command::cargo_bin("codegen")?;
-    cmd.args(&["--config", config_path.to_str().unwrap()]);
+    cmd.args(["--config", config_path.to_str().unwrap()]);
     cmd.assert().success();
 
     assert_snapshot!(std::fs::read_to_string(
@@ -210,7 +210,7 @@ fn test_error_missing_properties() -> Result<()> {
 
     // Run codegen and check that it fails with an error
     let mut cmd = Command::cargo_bin("codegen")?;
-    cmd.args(&["--config", config_path.to_str().unwrap()]);
+    cmd.args(["--config", config_path.to_str().unwrap()]);
 
     cmd.assert().failure();
 
