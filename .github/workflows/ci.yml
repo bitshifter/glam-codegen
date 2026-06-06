@@ -2,33 +2,32 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
+      - uses: actions/checkout@v6
+      - uses: Swatinem/rust-cache@v2
 
-    - uses: actions/checkout@v4
+      - run: rustup update --no-self-update stable && rustup default stable
 
-    - run: rustup update --no-self-update stable
-    - run: rustup default stable
+      - name: fmt
+        run: cargo fmt --check
 
-    - name: fmt
-      run: cargo fmt -- --check --color always
+      - name: clippy
+        run: cargo clippy --no-deps --all-targets --locked -- -D warnings
 
-    - name: clippy
-      run: cargo clippy --no-deps --all-targets -- -D warnings
-
-    - name: check
-      run: cargo check
-
-    - name: test
-      run: cargo test
+      - name: test
+        run: cargo test --locked
