@@ -10,7 +10,7 @@ edition = "2021"
 anyhow = { version = "1" }
 argh = "0.1"
 argh_derive = "0.1"
-git2 = { version = "0.18", default-features = false }
+git2 = { version = "0.21", default-features = false }
 globset = { version = "0.4", default-features = false }
 rustfmt-wrapper = { version = "0.2" }
 serde = { version = "1.0", default-features = false, features = ["std"] }
