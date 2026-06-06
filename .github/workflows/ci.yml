@@ -15,12 +15,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - uses: actions/checkout@v4
+
+    - run: rustup update --no-self-update stable
+    - run: rustup default stable
+
     - name: fmt
       run: cargo fmt -- --check --color always
+
     - name: clippy
-      run: cargo clippy --no-deps
+      run: cargo clippy --no-deps --all-targets -- -D warnings
+
     - name: check
       run: cargo check
+
     - name: test
       run: cargo test
