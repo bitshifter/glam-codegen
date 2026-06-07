@@ -14,6 +14,8 @@ const CONFIG_FILE: &str = "codegen.json";
 struct Config {
     version: u32,
     template_root: String,
+    #[serde(default)]
+    default_glob: Option<String>,
     templates: BTreeMap<String, Template>,
 }
 
@@ -170,8 +172,8 @@ fn find_config_file() -> anyhow::Result<PathBuf> {
 #[derive(FromArgs, PartialEq, Debug)]
 /// Codegen - Generate Rust code from templates
 struct CliArgs {
-    /// output file paths (glob pattern)
-    #[argh(positional, hidden_help)]
+    /// filter output paths by glob pattern (defaults to codegen.json's "default_glob" when set)
+    #[argh(positional)]
     glob: Option<String>,
 
     /// force overwrite existing files
@@ -203,22 +205,6 @@ fn main() -> anyhow::Result<()> {
     let args: CliArgs = argh::from_env();
 
     let fmt_output = !args.nofmt;
-    let output_path_glob = args.glob;
-
-    if args.stdout && output_path_glob.is_none() {
-        // TODO: What if the glob matches multiple files?
-        bail!("specify a single file to output to stdout.");
-    }
-
-    let glob = if let Some(ref output_path_glob) = output_path_glob {
-        Some(
-            globset::Glob::new(output_path_glob.as_str())
-                .context("failed to compile glob")?
-                .compile_matcher(),
-        )
-    } else {
-        None
-    };
 
     let config_file = if let Some(ref config) = args.config {
         config.clone()
@@ -227,6 +213,24 @@ fn main() -> anyhow::Result<()> {
     };
     let config_root = config_file.parent().unwrap_or(Path::new("."));
     let config = Config::from_file(config_file.as_path())?;
+
+    let output_path_glob = args.glob;
+
+    if args.stdout && output_path_glob.is_none() {
+        // TODO: What if the glob matches multiple files?
+        bail!("specify a single file to output to stdout.");
+    }
+
+    let effective_glob = output_path_glob.as_ref().or(config.default_glob.as_ref());
+    let glob = if let Some(output_path_glob) = effective_glob {
+        Some(
+            globset::Glob::new(output_path_glob.as_str())
+                .context("failed to compile glob")?
+                .compile_matcher(),
+        )
+    } else {
+        None
+    };
 
     let template_path = Path::new(config_root)
         .join(&config.template_root)
