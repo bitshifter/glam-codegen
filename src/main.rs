@@ -4,7 +4,6 @@ use rustfmt_wrapper::rustfmt;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
-use tera::{from_value, to_value};
 
 // use outputs::build_output_pairs;
 
@@ -53,11 +52,11 @@ impl Config {
                 context.insert("template_path", template_path);
                 for (prop_key, prop_value) in template.properties.iter() {
                     if let Some(prop_override) = output.properties.get(prop_key) {
-                        context.insert(prop_key, prop_override);
+                        context.insert(prop_key.clone(), prop_override);
                     } else {
                         // TODO: error message
                         if let Some(prop_value) = prop_value {
-                            context.insert(prop_key, prop_value);
+                            context.insert(prop_key.clone(), prop_value);
                         } else {
                             return Err(anyhow::Error::msg("Missing property override"));
                         }
@@ -235,14 +234,13 @@ fn main() -> anyhow::Result<()> {
     let template_path = Path::new(config_root)
         .join(&config.template_root)
         .join("**/*.rs.tera");
-    let mut tera =
-        tera::Tera::new(template_path.to_str().unwrap()).context("tera parsing error(s)")?;
+    let mut tera = tera::Tera::new();
+    tera.load_from_glob(template_path.to_str().unwrap())
+        .context("tera parsing error(s)")?;
     tera.register_filter(
         "snake_case",
-        |value: &tera::Value, _: &_| -> tera::Result<tera::Value> {
-            let input = from_value::<String>(value.clone())?;
-            let mut iter = input.chars();
-
+        |value: &str, _: tera::Kwargs, _: &tera::State| -> String {
+            let mut iter = value.chars();
             let mut string = String::new();
 
             if let Some(first) = iter.next() {
@@ -255,7 +253,7 @@ fn main() -> anyhow::Result<()> {
                     string.push(char.to_ascii_lowercase());
                 }
             }
-            tera::Result::Ok(to_value(string)?)
+            string
         },
     );
 
