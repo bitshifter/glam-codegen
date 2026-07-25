@@ -1,7 +1,7 @@
 [package]
 name = "codegen"
 description = "A tool to generate Rust source code from tera templates"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -15,7 +15,7 @@ globset = { version = "0.4", default-features = false }
 rustfmt-wrapper = { version = "0.2" }
 serde = { version = "1.0", default-features = false, features = ["std"] }
 serde_json = { version = "1.0", default-features = false, features = ["std"] }
-tera = { version = "1", default-features = false }
+tera = { version = "2", default-features = false, features = ["glob_fs"] }
 
 [dev-dependencies]
 insta = "1"
