@@ -20,15 +20,15 @@ by `glam` users.
 
 ## Tera templates
 
-Source files are generated using [`Tera`] templates. These kinds of templates
+Source files are generated using [`Tera v2`] templates. These kinds of templates
 are typically used to generate static web pages, but here we are using them to
 generate Rust source. The main advantages are a lot of the template looks like
 Rust code. The templates are fairly declarative and easier to follow than the
 macros (in my opinion). I try to stick to basic features of the [templating
 language] to keep things simple.
 
-[`Tera`]: https://keats.github.io/tera/
-[templating language]: https://keats.github.io/tera/docs/
+[`Tera v2`]: https://keats.github.io/tera/
+[templating language]: https://keats.github.io/tera/#template
 
 ### Control variables
 
@@ -77,7 +77,8 @@ Each template starts with setting up a number of common variables based on the
 inputs from the `codegen` program. Commonly used variables are:
 
 * `self_t` - the name of the type being generated
-* `unsigned_scalar_t` - the unsigned version of `scalar_t` (e.g. `u8`, `u16`, `u32`)
+* `unsigned_scalar_t` - the unsigned version of `scalar_t` (e.g. `u8`, `u16`,
+  `u32`)
 * `inner_t` - the inner storage type used by this type (e.g. `__m128` or
   `core::storage::XYZ<f32>`)
 * `deref_t` - the type used by the `Deref` and `DerefMut` implementation - not
@@ -95,7 +96,8 @@ inputs from the `codegen` program. Commonly used variables are:
 
 ## Running `codegen`
 
-The easiest way to run `codegen` on a clone of the glam repo is to first initialize the submodule with `git`:
+The easiest way to run `codegen` on a clone of the glam repo is to first
+initialize the submodule with `git`:
 
 ```sh
 git submodule init
@@ -104,13 +106,13 @@ git submodule init
 Then run it via `cargo`:
 
 ```sh
-cargo run -p codegen
+cargo run --release -p codegen
 ```
 
 To pass additional parameters, e.g. `-h` for help:
 
 ```sh
-cargo r -p codegen -- -h
+cargo r --release -p codegen -- -h
 ```
 
 `codegen` will generate all files by default or if a glob pattern is specified,
@@ -148,3 +150,4 @@ Licensed under either of
   or [http://opensource.org/licenses/MIT])
 
 at your option.
+
