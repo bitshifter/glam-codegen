@@ -2,7 +2,7 @@ use anyhow::Result;
 use assert_cmd::Command;
 use insta::assert_snapshot;
 use std::path::PathBuf;
-use tempfile::{tempdir, TempDir};
+use tempfile::{TempDir, tempdir};
 
 // Create a simple test template using proper tera syntax
 const TEMPLATE_CONTENT: &str = r#"// Generated from {{template_path}} template.
