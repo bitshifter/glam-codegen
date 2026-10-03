@@ -1,6 +1,7 @@
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use argh::FromArgs;
-use rustfmt_wrapper::rustfmt;
+use rustfmt_wrapper::config::{Config as RustfmtConfig, Edition};
+use rustfmt_wrapper::rustfmt_config;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -299,7 +300,13 @@ fn main() -> anyhow::Result<()> {
         let mut output_str = generate_file(&tera, context, template_path)?;
 
         if fmt_output || args.check {
-            output_str = rustfmt(&output_str).context("rustfmt failed")?;
+            // Match `cargo fmt` for a Rust 2024 crate. The `rustfmt` wrapper's
+            // default is edition 2018, which uses the pre-2024 style edition.
+            let fmt_config = RustfmtConfig {
+                edition: Some(Edition::Edition2024),
+                ..Default::default()
+            };
+            output_str = rustfmt_config(fmt_config, &output_str).context("rustfmt failed")?;
         }
 
         let full_output_path = workdir.join(output_path);
